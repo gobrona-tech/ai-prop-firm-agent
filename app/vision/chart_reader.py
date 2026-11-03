@@ -7,11 +7,17 @@ class ChartReader:
 
         height, width = frame.shape[:2]
 
-        left = int(width * 0.05)
-        right = int(width * 0.82)
+        # მარცხენა toolbar-ის მოჭრა
+        left = int(width * 0.07)
 
-        top = int(height * 0.08)
-        bottom = int(height * 0.93)
+        # watchlist-ის მოჭრა
+        right = int(width * 0.88)
+
+        # ზედა toolbar-ის მოჭრა
+        top = int(height * 0.12)
+
+        # ქვედა ზოლის დატოვება დროისთვის
+        bottom = int(height * 0.92)
 
         chart = frame[top:bottom, left:right]
 
