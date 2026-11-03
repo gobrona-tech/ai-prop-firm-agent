@@ -76,4 +76,23 @@ class OCRReader:
         )
 
         cv2.imwrite(
-            
+            "data/screenshots/price_region.png",
+            price_area
+        )
+
+        cv2.imwrite(
+            "data/screenshots/header_processed.png",
+            header_processed
+        )
+
+        cv2.imwrite(
+            "data/screenshots/price_processed.png",
+            price_processed
+        )
+
+        return {
+            "header": header,
+            "price_area": price_area,
+            "header_processed": header_processed,
+            "price_processed": price_processed
+        }
