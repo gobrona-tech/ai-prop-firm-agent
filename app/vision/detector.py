@@ -1,3 +1,5 @@
+import cv2
+
 from app.vision.tradingview import TradingViewWindow
 from app.vision.screen_capture import ScreenCapture
 
@@ -27,6 +29,11 @@ class VisionDetector:
                 "width": tv["width"],
                 "height": tv["height"]
             }
+        )
+
+        cv2.imwrite(
+            "data/screenshots/latest.png",
+            frame
         )
 
         return {
