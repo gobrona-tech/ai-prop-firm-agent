@@ -2,6 +2,7 @@ import cv2
 
 from app.vision.tradingview import TradingViewWindow
 from app.vision.screen_capture import ScreenCapture
+from app.vision.chart_reader import ChartReader
 
 
 class VisionDetector:
@@ -10,6 +11,7 @@ class VisionDetector:
 
         self.window = TradingViewWindow()
         self.capture = ScreenCapture()
+        self.chart_reader = ChartReader()
 
     def scan(self):
 
@@ -31,13 +33,21 @@ class VisionDetector:
             }
         )
 
+        chart = self.chart_reader.crop_chart(frame)
+
         cv2.imwrite(
             "data/screenshots/latest.png",
             frame
         )
 
+        cv2.imwrite(
+            "data/screenshots/chart.png",
+            chart
+        )
+
         return {
             "success": True,
             "window": tv,
-            "frame": frame
+            "frame": frame,
+            "chart": chart
         }
