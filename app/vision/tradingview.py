@@ -1,6 +1,17 @@
 import pygetwindow as gw
 
 
+BLOCKLIST = [
+    "Windows Input Experience",
+    "Program Manager",
+    "Settings",
+    "Task Manager",
+    "Administrator:",
+    "Copilot",
+    "Spotify"
+]
+
+
 class TradingViewWindow:
 
     def find(self):
@@ -14,6 +25,17 @@ class TradingViewWindow:
                 title = window.title
 
                 if not title:
+                    continue
+
+                skip = False
+
+                for blocked in BLOCKLIST:
+
+                    if blocked in title:
+                        skip = True
+                        break
+
+                if skip:
                     continue
 
                 if window.width < 800:
