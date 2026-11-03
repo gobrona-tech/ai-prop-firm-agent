@@ -4,3 +4,4 @@ mss
 pygetwindow
 pillow
 pyautogui
+easyocr
