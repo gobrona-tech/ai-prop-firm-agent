@@ -39,20 +39,14 @@ class VisionDetector:
 
         regions = self.ocr.save_debug_regions(frame)
 
-        cv2.imwrite(
-            "data/screenshots/latest.png",
-            frame
-        )
+        debug_frame = frame.copy()
 
-        cv2.imwrite(
-            "data/screenshots/chart.png",
-            chart
-        )
+        height, width = frame.shape[:2]
 
-        return {
-            "success": True,
-            "window": tv,
-            "frame": frame,
-            "chart": chart,
-            "regions": regions
-        }
+        # HEADER REGION
+        cv2.rectangle(
+            debug_frame,
+            (0, 0),
+            (int(width * 0.45), int(height * 0.08)),
+            (0, 255, 0),
+      
