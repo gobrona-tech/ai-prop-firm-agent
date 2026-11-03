@@ -11,10 +11,10 @@ class OCRReader:
         height, width = frame.shape[:2]
 
         top = 0
-        bottom = int(height * 0.10)
+        bottom = int(height * 0.08)
 
         left = 0
-        right = width
+        right = int(width * 0.45)
 
         header = frame[top:bottom, left:right]
 
@@ -24,11 +24,11 @@ class OCRReader:
 
         height, width = frame.shape[:2]
 
-        left = int(width * 0.88)
+        left = int(width * 0.92)
         right = width
 
-        top = int(height * 0.10)
-        bottom = int(height * 0.90)
+        top = int(height * 0.05)
+        bottom = int(height * 0.95)
 
         price_area = frame[top:bottom, left:right]
 
