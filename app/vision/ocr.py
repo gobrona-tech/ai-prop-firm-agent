@@ -24,11 +24,12 @@ class OCRReader:
 
         height, width = frame.shape[:2]
 
-        left = int(width * 0.92)
-        right = width
+        # Price Scale მდებარეობს Watchlist-ის მარცხნივ
+        left = int(width * 0.80)
+        right = int(width * 0.87)
 
-        top = int(height * 0.05)
-        bottom = int(height * 0.95)
+        top = int(height * 0.10)
+        bottom = int(height * 0.92)
 
         price_area = frame[top:bottom, left:right]
 
