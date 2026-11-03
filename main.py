@@ -1,38 +1,15 @@
-from app.vision.detector import VisionDetector
+import pygetwindow as gw
 
+for window in gw.getAllWindows():
 
-def main():
+    try:
 
-    detector = VisionDetector()
+        if window.title:
 
-    result = detector.scan()
+            print(
+                f"{window.title} | "
+                f"{window.width}x{window.height}"
+            )
 
-    if not result["success"]:
-        print(result["message"])
-        return
-
-    print("================================")
-    print("TRADINGVIEW DETECTED")
-    print("================================")
-
-    print(result["window"]["title"])
-
-    print()
-
-    print(
-        f"WIDTH: {result['window']['width']}"
-    )
-
-    print(
-        f"HEIGHT: {result['window']['height']}"
-    )
-
-    print()
-
-    print(
-        f"FRAME SHAPE: {result['frame'].shape}"
-    )
-
-
-if __name__ == "__main__":
-    main()
+    except:
+        pass
