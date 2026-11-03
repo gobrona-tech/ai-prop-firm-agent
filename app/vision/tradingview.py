@@ -1,18 +1,11 @@
 import pygetwindow as gw
 
 
-KNOWN_SYMBOLS = [
-    "MNQ",
-    "MES",
-    "NQ",
-    "ES",
-    "BTCUSDT"
-]
-
-
 class TradingViewWindow:
 
     def find(self):
+
+        candidates = []
 
         for window in gw.getAllWindows():
 
@@ -23,19 +16,31 @@ class TradingViewWindow:
                 if not title:
                     continue
 
-                for symbol in KNOWN_SYMBOLS:
+                if window.width < 800:
+                    continue
 
-                    if symbol in title:
+                if window.height < 500:
+                    continue
 
-                        return {
-                            "title": title,
-                            "left": window.left,
-                            "top": window.top,
-                            "width": window.width,
-                            "height": window.height
-                        }
+                candidates.append(
+                    {
+                        "title": title,
+                        "left": window.left,
+                        "top": window.top,
+                        "width": window.width,
+                        "height": window.height
+                    }
+                )
 
             except Exception:
                 continue
 
-        return None
+        if not candidates:
+            return None
+
+        candidates.sort(
+            key=lambda x: x["width"] * x["height"],
+            reverse=True
+        )
+
+        return candidates[0]
