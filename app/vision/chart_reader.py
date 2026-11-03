@@ -7,18 +7,23 @@ class ChartReader:
 
         height, width = frame.shape[:2]
 
-        # Left drawing toolbar
         left = int(width * 0.08)
-
-        # Right watchlist / panels
         right = int(width * 0.78)
 
-        # Top TradingView toolbar
         top = int(height * 0.15)
-
-        # Bottom time scale
         bottom = int(height * 0.94)
 
         chart = frame[top:bottom, left:right]
 
         return chart
+
+    def get_chart_info(self, chart):
+
+        height, width = chart.shape[:2]
+
+        return {
+            "width": width,
+            "height": height,
+            "center_x": width // 2,
+            "center_y": height // 2
+        }
