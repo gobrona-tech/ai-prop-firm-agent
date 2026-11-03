@@ -24,11 +24,11 @@ class OCRReader:
 
         height, width = frame.shape[:2]
 
-        # Price Scale მდებარეობს Watchlist-ის მარცხნივ
-        left = int(width * 0.80)
-        right = int(width * 0.87)
+        # მხოლოდ Price Scale
+        left = int(width * 0.72)
+        right = int(width * 0.80)
 
-        top = int(height * 0.10)
+        top = int(height * 0.08)
         bottom = int(height * 0.92)
 
         price_area = frame[top:bottom, left:right]
@@ -87,13 +87,4 @@ class OCRReader:
         )
 
         cv2.imwrite(
-            "data/screenshots/price_processed.png",
-            price_processed
-        )
-
-        return {
-            "header": header,
-            "price_area": price_area,
-            "header_processed": header_processed,
-            "price_processed": price_processed
-        }
+  
