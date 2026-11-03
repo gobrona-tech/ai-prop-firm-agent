@@ -37,13 +37,18 @@ class VisionDetector:
 
         chart = self.chart_reader.crop_chart(frame)
 
-        regions = self.ocr.save_debug_regions(frame)
+        chart_info = self.chart_reader.get_chart_info(
+            chart
+        )
+
+        regions = self.ocr.save_debug_regions(
+            frame
+        )
 
         debug_frame = frame.copy()
 
         height, width = frame.shape[:2]
 
-        # Header Region
         cv2.rectangle(
             debug_frame,
             (0, 0),
@@ -52,11 +57,10 @@ class VisionDetector:
             4
         )
 
-        # Price Region
         cv2.rectangle(
             debug_frame,
-            (int(width * 0.92), int(height * 0.05)),
-            (width, int(height * 0.95)),
+            (int(width * 0.72), int(height * 0.08)),
+            (int(width * 0.80), int(height * 0.92)),
             (0, 0, 255),
             4
         )
@@ -81,5 +85,6 @@ class VisionDetector:
             "window": tv,
             "frame": frame,
             "chart": chart,
+            "chart_info": chart_info,
             "regions": regions
         }
