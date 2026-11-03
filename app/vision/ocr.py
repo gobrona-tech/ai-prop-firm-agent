@@ -11,6 +11,27 @@ class OCRReader:
             gpu=False
         )
 
+        self.symbols = [
+            "MNQ",
+            "MES",
+            "NQ",
+            "ES"
+        ]
+
+        self.timeframes = [
+            "15s",
+            "1m",
+            "3m",
+            "5m",
+            "15m",
+            "30m",
+            "1h",
+            "4h",
+            "D",
+            "W",
+            "M"
+        ]
+
     def extract_header_region(self, frame):
 
         height, width = frame.shape[:2]
@@ -21,9 +42,7 @@ class OCRReader:
         left = 0
         right = int(width * 0.45)
 
-        header = frame[top:bottom, left:right]
-
-        return header
+        return frame[top:bottom, left:right]
 
     def extract_price_region(self, frame):
 
@@ -35,9 +54,7 @@ class OCRReader:
         top = int(height * 0.08)
         bottom = int(height * 0.92)
 
-        price_area = frame[top:bottom, left:right]
-
-        return price_area
+        return frame[top:bottom, left:right]
 
     def preprocess_image(self, image):
 
@@ -63,12 +80,28 @@ class OCRReader:
 
     def read_text(self, image):
 
-        results = self.reader.readtext(
+        return self.reader.readtext(
             image,
             detail=0
         )
 
-        return results
+    def extract_symbol(self, text_items):
+
+        joined = " ".join(text_items).upper()
+
+        for symbol in self.symbols:
+            if symbol in joined:
+                return symbol
+
+        return "UNKNOWN"
+
+    def extract_timeframe(self, text_items):
+
+        for tf in self.timeframes:
+            if tf in text_items:
+                return tf
+
+        return "UNKNOWN"
 
     def save_debug_regions(self, frame):
 
@@ -112,17 +145,18 @@ class OCRReader:
             price_processed
         )
 
+        symbol = self.extract_symbol(
+            header_text
+        )
+
+        timeframe = self.extract_timeframe(
+            header_text
+        )
+
         print()
-        print("===== HEADER OCR =====")
-
-        for item in header_text:
-            print(item)
-
-        print()
-        print("===== PRICE OCR =====")
-
-        for item in price_text:
-            print(item)
+        print("===== MARKET INFO =====")
+        print(f"Symbol: {symbol}")
+        print(f"Timeframe: {timeframe}")
 
         return {
             "header": header,
@@ -130,5 +164,7 @@ class OCRReader:
             "header_processed": header_processed,
             "price_processed": price_processed,
             "header_text": header_text,
-            "price_text": price_text
+            "price_text": price_text,
+            "symbol": symbol,
+            "timeframe": timeframe
         }
