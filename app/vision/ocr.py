@@ -24,7 +24,6 @@ class OCRReader:
 
         height, width = frame.shape[:2]
 
-        # მხოლოდ Price Scale
         left = int(width * 0.72)
         right = int(width * 0.80)
 
@@ -67,24 +66,4 @@ class OCRReader:
             header
         )
 
-        price_processed = self.preprocess_image(
-            price_area
-        )
-
-        cv2.imwrite(
-            "data/screenshots/header_region.png",
-            header
-        )
-
-        cv2.imwrite(
-            "data/screenshots/price_region.png",
-            price_area
-        )
-
-        cv2.imwrite(
-            "data/screenshots/header_processed.png",
-            header_processed
-        )
-
-        cv2.imwrite(
-  
+        price_processed = self.preprocess
