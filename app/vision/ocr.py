@@ -1,10 +1,15 @@
 import cv2
+import easyocr
 
 
 class OCRReader:
 
     def __init__(self):
-        pass
+
+        self.reader = easyocr.Reader(
+            ["en"],
+            gpu=False
+        )
 
     def extract_header_region(self, frame):
 
@@ -24,7 +29,6 @@ class OCRReader:
 
         height, width = frame.shape[:2]
 
-        # Price Scale Region
         left = int(width * 0.72)
         right = int(width * 0.80)
 
@@ -56,6 +60,15 @@ class OCRReader:
         )[1]
 
         return processed
+
+    def read_text(self, image):
+
+        results = self.reader.readtext(
+            image,
+            detail=0
+        )
+
+        return results
 
     def save_debug_regions(self, frame):
 
@@ -91,9 +104,31 @@ class OCRReader:
             price_processed
         )
 
+        header_text = self.read_text(
+            header_processed
+        )
+
+        price_text = self.read_text(
+            price_processed
+        )
+
+        print()
+        print("===== HEADER OCR =====")
+
+        for item in header_text:
+            print(item)
+
+        print()
+        print("===== PRICE OCR =====")
+
+        for item in price_text:
+            print(item)
+
         return {
             "header": header,
             "price_area": price_area,
             "header_processed": header_processed,
-            "price_processed": price_processed
+            "price_processed": price_processed,
+            "header_text": header_text,
+            "price_text": price_text
         }
