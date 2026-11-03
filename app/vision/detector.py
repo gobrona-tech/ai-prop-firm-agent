@@ -43,10 +43,43 @@ class VisionDetector:
 
         height, width = frame.shape[:2]
 
-        # HEADER REGION
+        # Header Region
         cv2.rectangle(
             debug_frame,
             (0, 0),
             (int(width * 0.45), int(height * 0.08)),
             (0, 255, 0),
-      
+            4
+        )
+
+        # Price Region
+        cv2.rectangle(
+            debug_frame,
+            (int(width * 0.92), int(height * 0.05)),
+            (width, int(height * 0.95)),
+            (0, 0, 255),
+            4
+        )
+
+        cv2.imwrite(
+            "data/screenshots/latest.png",
+            frame
+        )
+
+        cv2.imwrite(
+            "data/screenshots/chart.png",
+            chart
+        )
+
+        cv2.imwrite(
+            "data/screenshots/debug_regions.png",
+            debug_frame
+        )
+
+        return {
+            "success": True,
+            "window": tv,
+            "frame": frame,
+            "chart": chart,
+            "regions": regions
+        }
