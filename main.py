@@ -32,6 +32,7 @@ def main():
         print(f"Timeframe: {timeframe}")
 
     print()
+
     print("================================")
     print("TRADINGVIEW DETECTED")
     print("================================")
@@ -80,6 +81,36 @@ def main():
         print(
             f"Center Y: "
             f"{result['chart_info']['center_y']}"
+        )
+
+    if "chart_debug" in result:
+
+        bullish = len(
+            result["chart_debug"].get(
+                "bullish_candles",
+                []
+            )
+        )
+
+        bearish = len(
+            result["chart_debug"].get(
+                "bearish_candles",
+                []
+            )
+        )
+
+        print()
+
+        print("================================")
+        print("CANDLE DETECTION")
+        print("================================")
+
+        print(
+            f"Bullish Candles Found: {bullish}"
+        )
+
+        print(
+            f"Bearish Candles Found: {bearish}"
         )
 
 
