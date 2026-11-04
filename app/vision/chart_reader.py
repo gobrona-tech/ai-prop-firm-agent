@@ -88,6 +88,39 @@ class ChartReader:
             mask2
         )
 
+    def detect_candle_candidates(self, mask):
+
+        contours, _ = cv2.findContours(
+            mask,
+            cv2.RETR_EXTERNAL,
+            cv2.CHAIN_APPROX_SIMPLE
+        )
+
+        candles = []
+
+        for contour in contours:
+
+            x, y, w, h = cv2.boundingRect(
+                contour
+            )
+
+            if h < 8:
+                continue
+
+            if w > 25:
+                continue
+
+            candles.append(
+                {
+                    "x": x,
+                    "y": y,
+                    "width": w,
+                    "height": h
+                }
+            )
+
+        return candles
+
     def save_debug_images(self, chart):
 
         bullish_mask = self.create_bullish_mask(
@@ -97,6 +130,52 @@ class ChartReader:
         bearish_mask = self.create_bearish_mask(
             chart
         )
+
+        bullish_candles = (
+            self.detect_candle_candidates(
+                bullish_mask
+            )
+        )
+
+        bearish_candles = (
+            self.detect_candle_candidates(
+                bearish_mask
+            )
+        )
+
+        debug_chart = chart.copy()
+
+        for candle in bullish_candles:
+
+            cv2.rectangle(
+                debug_chart,
+                (
+                    candle["x"],
+                    candle["y"]
+                ),
+                (
+                    candle["x"] + candle["width"],
+                    candle["y"] + candle["height"]
+                ),
+                (0, 255, 0),
+                1
+            )
+
+        for candle in bearish_candles:
+
+            cv2.rectangle(
+                debug_chart,
+                (
+                    candle["x"],
+                    candle["y"]
+                ),
+                (
+                    candle["x"] + candle["width"],
+                    candle["y"] + candle["height"]
+                ),
+                (0, 0, 255),
+                1
+            )
 
         cv2.imwrite(
             "data/screenshots/bullish_mask.png",
@@ -108,7 +187,14 @@ class ChartReader:
             bearish_mask
         )
 
+        cv2.imwrite(
+            "data/screenshots/candle_candidates.png",
+            debug_chart
+        )
+
         return {
             "bullish_mask": bullish_mask,
-            "bearish_mask": bearish_mask
+            "bearish_mask": bearish_mask,
+            "bullish_candles": bullish_candles,
+            "bearish_candles": bearish_candles
         }
