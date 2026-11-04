@@ -1,4 +1,3 @@
-
 class OrderBlockDetector:
 
     def __init__(self):
@@ -28,7 +27,11 @@ class OrderBlockDetector:
                         "type": "bullish",
                         "index": i,
                         "high": current["high"],
-                        "low": current["low"]
+                        "low": current["low"],
+                        "range": (
+                            current["high"] -
+                            current["low"]
+                        )
                     }
                 )
 
@@ -58,8 +61,25 @@ class OrderBlockDetector:
                         "type": "bearish",
                         "index": i,
                         "high": current["high"],
-                        "low": current["low"]
+                        "low": current["low"],
+                        "range": (
+                            current["high"] -
+                            current["low"]
+                        )
                     }
                 )
 
         return orderblocks
+
+    def get_strongest_orderblock(
+        self,
+        orderblocks
+    ):
+
+        if not orderblocks:
+            return None
+
+        return max(
+            orderblocks,
+            key=lambda x: x["range"]
+        )
