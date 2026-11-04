@@ -1,56 +1,70 @@
 class SignalEngine:
 
-    def build_signal(
+    def __init__(self):
+        pass
+
+    def calculate_score(
         self,
         summary
     ):
 
-        bias = summary["bias"]
-
-        bullish_fvgs = summary[
-            "bullish_fvgs"
-        ]
-
-        bearish_fvgs = summary[
-            "bearish_fvgs"
-        ]
-
-        bullish_obs = summary[
-            "bullish_obs"
-        ]
-
-        bearish_obs = summary[
-            "bearish_obs"
-        ]
-
         score = 0
 
-        if bias == "bullish":
-            score += 2
+        if summary["bias"] == "bullish":
+            score += 3
 
-        if bias == "bearish":
-            score -= 2
+        elif summary["bias"] == "bearish":
+            score -= 3
 
         score += (
-            bullish_fvgs -
-            bearish_fvgs
+            summary["bullish_fvgs"] -
+            summary["bearish_fvgs"]
         )
 
         score += (
-            bullish_obs -
-            bearish_obs
+            summary["bullish_obs"] -
+            summary["bearish_obs"]
         )
 
-        if score >= 3:
+        return score
+
+    def get_signal(
+        self,
+        summary
+    ):
+
+        score = self.calculate_score(
+            summary
+        )
+
+        if score >= 5:
             return "STRONG BUY"
 
-        if score >= 1:
+        if score >= 2:
             return "BUY"
 
-        if score <= -3:
+        if score <= -5:
             return "STRONG SELL"
 
-        if score <= -1:
+        if score <= -2:
             return "SELL"
 
         return "NEUTRAL"
+
+    def analyze(
+        self,
+        summary
+    ):
+
+        score = self.calculate_score(
+            summary
+        )
+
+        signal = self.get_signal(
+            summary
+        )
+
+        return {
+            "score": score,
+            "signal": signal
+        }
