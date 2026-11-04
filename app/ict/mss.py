@@ -3,11 +3,27 @@ class MSSDetector:
     def __init__(self):
         pass
 
+    def get_recent_swings(
+        self,
+        swings,
+        size=5
+    ):
+
+        if len(swings) <= size:
+            return swings
+
+        return swings[-size:]
+
     def detect_bullish_mss(
         self,
         swing_highs,
         current_value
     ):
+
+        swing_highs = self.get_recent_swings(
+            swing_highs,
+            5
+        )
 
         if not swing_highs:
             return None
@@ -19,11 +35,17 @@ class MSSDetector:
             last_high["value"]
         )
 
+        distance = abs(
+            current_value -
+            last_high["value"]
+        )
+
         return {
             "direction": "bullish",
             "broken": broken,
             "level": last_high["value"],
-            "x": last_high["x"]
+            "x": last_high["x"],
+            "distance": distance
         }
 
     def detect_bearish_mss(
@@ -31,6 +53,11 @@ class MSSDetector:
         swing_lows,
         current_value
     ):
+
+        swing_lows = self.get_recent_swings(
+            swing_lows,
+            5
+        )
 
         if not swing_lows:
             return None
@@ -42,11 +69,17 @@ class MSSDetector:
             last_low["value"]
         )
 
+        distance = abs(
+            current_value -
+            last_low["value"]
+        )
+
         return {
             "direction": "bearish",
             "broken": broken,
             "level": last_low["value"],
-            "x": last_low["x"]
+            "x": last_low["x"],
+            "distance": distance
         }
 
     def get_market_bias(
@@ -55,16 +88,30 @@ class MSSDetector:
         bearish_mss
     ):
 
-        if (
+        bullish_broken = (
             bullish_mss and
             bullish_mss["broken"]
-        ):
-            return "bullish"
+        )
 
-        if (
+        bearish_broken = (
             bearish_mss and
             bearish_mss["broken"]
-        ):
+        )
+
+        if bullish_broken and not bearish_broken:
+            return "bullish"
+
+        if bearish_broken and not bullish_broken:
+            return "bearish"
+
+        if bullish_broken and bearish_broken:
+
+            if (
+                bullish_mss["distance"] <
+                bearish_mss["distance"]
+            ):
+                return "bullish"
+
             return "bearish"
 
         return "neutral"
