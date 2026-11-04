@@ -85,18 +85,14 @@ def main():
 
     if "chart_debug" in result:
 
-        bullish = len(
-            result["chart_debug"].get(
-                "bullish_candles",
-                []
-            )
+        stats = result["chart_debug"].get(
+            "stats",
+            {}
         )
 
-        bearish = len(
-            result["chart_debug"].get(
-                "bearish_candles",
-                []
-            )
+        candles = stats.get(
+            "candles",
+            []
         )
 
         print()
@@ -106,12 +102,46 @@ def main():
         print("================================")
 
         print(
-            f"Bullish Candles Found: {bullish}"
+            f"Total Candles Found: "
+            f"{stats.get('total', 0)}"
         )
 
         print(
-            f"Bearish Candles Found: {bearish}"
+            f"Bullish Candles Found: "
+            f"{stats.get('bullish', 0)}"
         )
+
+        print(
+            f"Bearish Candles Found: "
+            f"{stats.get('bearish', 0)}"
+        )
+
+        if candles:
+
+            print()
+
+            print(
+                f"First Candle X: "
+                f"{candles[0]['x']}"
+            )
+
+            print(
+                f"Last Candle X: "
+                f"{candles[-1]['x']}"
+            )
+
+            print()
+
+            print("Recent Candles:")
+
+            for candle in candles[-5:]:
+
+                print(
+                    f"x={candle['x']} "
+                    f"y={candle['y']} "
+                    f"w={candle['width']} "
+                    f"h={candle['height']}"
+                )
 
 
 if __name__ == "__main__":
