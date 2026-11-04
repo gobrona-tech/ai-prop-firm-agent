@@ -1,80 +1,64 @@
-class LiquidityDetector:
+class MSSDetector:
 
     def __init__(self):
         pass
 
-    def find_swing_highs(self, highs):
-
-        swing_highs = []
-
-        for i in range(2, len(highs) - 2):
-
-            if (
-                highs[i] > highs[i - 1]
-                and highs[i] > highs[i - 2]
-                and highs[i] > highs[i + 1]
-                and highs[i] > highs[i + 2]
-            ):
-
-                swing_highs.append(
-                    {
-                        "type": "swing_high",
-                        "index": i,
-                        "price": highs[i]
-                    }
-                )
-
-        return swing_highs
-
-    def find_swing_lows(self, lows):
-
-        swing_lows = []
-
-        for i in range(2, len(lows) - 2):
-
-            if (
-                lows[i] < lows[i - 1]
-                and lows[i] < lows[i - 2]
-                and lows[i] < lows[i + 1]
-                and lows[i] < lows[i + 2]
-            ):
-
-                swing_lows.append(
-                    {
-                        "type": "swing_low",
-                        "index": i,
-                        "price": lows[i]
-                    }
-                )
-
-        return swing_lows
-
-    def build_liquidity_map(
+    def detect_bullish_mss(
         self,
         swing_highs,
-        swing_lows
+        current_price
     ):
 
-        liquidity_map = []
+        if len(swing_highs) < 1:
+            return None
 
-        for high in swing_highs:
+        last_high = swing_highs[-1]
 
-            liquidity_map.append(
-                {
-                    "type": "buy_side_liquidity",
-                    "index": high["index"],
-                    "price": high["price"]
-                }
-            )
+        broken = (
+            current_price >
+            last_high["price"]
+        )
 
-        for low in swing_lows:
+        return {
+            "direction": "bullish",
+            "broken": broken,
+            "level": last_high["price"],
+            "index": last_high["index"]
+        }
 
-            liquidity_map.append(
-                {
-                    "type": "sell_side_liquidity",
-                    "index": low["index"],
-                    "price": low["price"]
-                }
-            )
+    def detect_bearish_mss(
+        self,
+        swing_lows,
+        current_price
+    ):
 
-        return liquidity_map
+        if len(swing_lows) < 1:
+            return None
+
+        last_low = swing_lows[-1]
+
+        broken = (
+            current_price <
+            last_low["price"]
+        )
+
+        return {
+            "direction": "bearish",
+            "broken": broken,
+            "level": last_low["price"],
+            "index": last_low["index"]
+        }
+
+    def get_market_bias(
+        self,
+        bullish_mss,
+        bearish_mss
+    ):
+
+        if bullish_mss and bullish_mss["broken"]:
+            return "bullish"
+
+        if bearish_mss and bearish_mss["broken"]:
+            return "bearish"
+
+        return "neutral"
