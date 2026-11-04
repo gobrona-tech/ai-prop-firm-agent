@@ -3,47 +3,96 @@ class LiquidityDetector:
     def __init__(self):
         pass
 
-    def find_swing_highs(self, highs):
+    def build_swing_series(
+        self,
+        candles
+    ):
+
+        swings = []
+
+        for candle in candles:
+
+            swing_value = (
+                candle["y"] +
+                candle["height"]
+            )
+
+            swings.append(
+                {
+                    "x": candle["x"],
+                    "value": swing_value
+                }
+            )
+
+        return swings
+
+    def find_swing_highs(
+        self,
+        swings
+    ):
 
         swing_highs = []
 
-        for i in range(2, len(highs) - 2):
+        for i in range(
+            2,
+            len(swings) - 2
+        ):
+
+            current = swings[i]["value"]
 
             if (
-                highs[i] > highs[i - 1]
-                and highs[i] > highs[i - 2]
-                and highs[i] > highs[i + 1]
-                and highs[i] > highs[i + 2]
+                current >
+                swings[i - 1]["value"]
+                and current >
+                swings[i - 2]["value"]
+                and current >
+                swings[i + 1]["value"]
+                and current >
+                swings[i + 2]["value"]
             ):
 
                 swing_highs.append(
                     {
                         "type": "swing_high",
                         "index": i,
-                        "price": highs[i]
+                        "x": swings[i]["x"],
+                        "value": current
                     }
                 )
 
         return swing_highs
 
-    def find_swing_lows(self, lows):
+    def find_swing_lows(
+        self,
+        swings
+    ):
 
         swing_lows = []
 
-        for i in range(2, len(lows) - 2):
+        for i in range(
+            2,
+            len(swings) - 2
+        ):
+
+            current = swings[i]["value"]
 
             if (
-                lows[i] < lows[i - 1]
-                and lows[i] < lows[i - 2]
-                and lows[i] < lows[i + 1]
-                and lows[i] < lows[i + 2]
+                current <
+                swings[i - 1]["value"]
+                and current <
+                swings[i - 2]["value"]
+                and current <
+                swings[i + 1]["value"]
+                and current <
+                swings[i + 2]["value"]
             ):
 
                 swing_lows.append(
                     {
                         "type": "swing_low",
                         "index": i,
-                        "price": lows[i]
+                        "x": swings[i]["x"],
+                        "value": current
                     }
                 )
 
@@ -62,8 +111,8 @@ class LiquidityDetector:
             liquidity_map.append(
                 {
                     "type": "buy_side_liquidity",
-                    "index": high["index"],
-                    "price": high["price"]
+                    "x": high["x"],
+                    "value": high["value"]
                 }
             )
 
@@ -72,8 +121,8 @@ class LiquidityDetector:
             liquidity_map.append(
                 {
                     "type": "sell_side_liquidity",
-                    "index": low["index"],
-                    "price": low["price"]
+                    "x": low["x"],
+                    "value": low["value"]
                 }
             )
 
