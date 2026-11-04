@@ -3,6 +3,17 @@ class FVGDetector:
     def __init__(self):
         pass
 
+    def get_recent_window(
+        self,
+        candles,
+        size=50
+    ):
+
+        if len(candles) <= size:
+            return candles
+
+        return candles[-size:]
+
     def build_fvg_series(
         self,
         candles
@@ -40,6 +51,11 @@ class FVGDetector:
 
         fvgs = []
 
+        candles = self.get_recent_window(
+            candles,
+            50
+        )
+
         series = self.build_fvg_series(
             candles
         )
@@ -61,6 +77,12 @@ class FVGDetector:
                     candle_1["bottom"]
                 )
 
+                if gap_size < 10:
+                    continue
+
+                if gap_size > 300:
+                    continue
+
                 fvgs.append(
                     {
                         "type": "bullish",
@@ -80,6 +102,11 @@ class FVGDetector:
     ):
 
         fvgs = []
+
+        candles = self.get_recent_window(
+            candles,
+            50
+        )
 
         series = self.build_fvg_series(
             candles
@@ -101,6 +128,12 @@ class FVGDetector:
                     candle_1["top"] -
                     candle_3["bottom"]
                 )
+
+                if gap_size < 10:
+                    continue
+
+                if gap_size > 300:
+                    continue
 
                 fvgs.append(
                     {
