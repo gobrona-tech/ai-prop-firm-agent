@@ -4,6 +4,7 @@ from app.ict.mss import MSSDetector
 from app.ict.fvg import FVGDetector
 from app.ict.orderblock import OrderBlockDetector
 from app.signal.signal_engine import SignalEngine
+from app.signal.trade_setup import TradeSetup
 
 
 def main():
@@ -14,6 +15,7 @@ def main():
     fvg = FVGDetector()
     orderblock = OrderBlockDetector()
     engine = SignalEngine()
+    setup_engine = TradeSetup()
 
     result = detector.scan()
 
@@ -161,6 +163,16 @@ def main():
         signal_summary
     )
 
+    signal_summary["signal"] = (
+        decision["signal"]
+    )
+
+    trade_setup = (
+        setup_engine.build_setup(
+            signal_summary
+        )
+    )
+
     print()
     print("================================")
     print("SIGNAL SUMMARY")
@@ -187,6 +199,17 @@ def main():
         f"Signal: "
         f"{decision['signal']}"
     )
+
+    print()
+    print("================================")
+    print("TRADE SETUP")
+    print("================================")
+
+    for key, value in trade_setup.items():
+
+        print(
+            f"{key}: {value}"
+        )
 
 
 if __name__ == "__main__":
