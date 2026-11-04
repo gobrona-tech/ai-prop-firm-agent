@@ -277,7 +277,7 @@ class ChartReader:
                     candle["y"] + candle["height"]
                 ),
                 (0, 255, 0),
-                1
+                3
             )
 
         for candle in bearish_candles:
@@ -290,7 +290,7 @@ class ChartReader:
                     candle["y"] + candle["height"]
                 ),
                 (0, 0, 255),
-                1
+                3
             )
 
         cv2.imwrite(
