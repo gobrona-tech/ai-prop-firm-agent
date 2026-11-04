@@ -34,13 +34,8 @@ class ChartReader:
             cv2.COLOR_BGR2HSV
         )
 
-        lower_green = np.array(
-            [35, 40, 40]
-        )
-
-        upper_green = np.array(
-            [90, 255, 255]
-        )
+        lower_green = np.array([35, 40, 40])
+        upper_green = np.array([90, 255, 255])
 
         return cv2.inRange(
             hsv,
@@ -55,21 +50,11 @@ class ChartReader:
             cv2.COLOR_BGR2HSV
         )
 
-        lower_red_1 = np.array(
-            [0, 40, 40]
-        )
+        lower_red_1 = np.array([0, 40, 40])
+        upper_red_1 = np.array([15, 255, 255])
 
-        upper_red_1 = np.array(
-            [15, 255, 255]
-        )
-
-        lower_red_2 = np.array(
-            [165, 40, 40]
-        )
-
-        upper_red_2 = np.array(
-            [180, 255, 255]
-        )
+        lower_red_2 = np.array([165, 40, 40])
+        upper_red_2 = np.array([180, 255, 255])
 
         mask1 = cv2.inRange(
             hsv,
@@ -87,6 +72,66 @@ class ChartReader:
             mask1,
             mask2
         )
+
+    def merge_nearby_candles(
+        self,
+        candles,
+        distance=3
+    ):
+
+        if not candles:
+            return []
+
+        candles = sorted(
+            candles,
+            key=lambda x: x["x"]
+        )
+
+        merged = [candles[0]]
+
+        for candle in candles[1:]:
+
+            current = merged[-1]
+
+            if (
+                abs(
+                    candle["x"] -
+                    current["x"]
+                ) <= distance
+            ):
+
+                current["y"] = min(
+                    current["y"],
+                    candle["y"]
+                )
+
+                bottom = max(
+                    current["y"] +
+                    current["height"],
+                    candle["y"] +
+                    candle["height"]
+                )
+
+                current["height"] = (
+                    bottom -
+                    current["y"]
+                )
+
+                current["width"] = max(
+                    current["width"],
+                    candle["width"]
+                )
+
+                current["area"] = (
+                    current["width"] *
+                    current["height"]
+                )
+
+            else:
+
+                merged.append(candle)
+
+        return merged
 
     def detect_candle_candidates(
         self,
@@ -136,7 +181,9 @@ class ChartReader:
                 }
             )
 
-        return candles
+        return self.merge_nearby_candles(
+            candles
+        )
 
     def sort_candles_left_to_right(
         self,
@@ -224,10 +271,7 @@ class ChartReader:
 
             cv2.rectangle(
                 debug_chart,
-                (
-                    candle["x"],
-                    candle["y"]
-                ),
+                (candle["x"], candle["y"]),
                 (
                     candle["x"] + candle["width"],
                     candle["y"] + candle["height"]
@@ -240,10 +284,7 @@ class ChartReader:
 
             cv2.rectangle(
                 debug_chart,
-                (
-                    candle["x"],
-                    candle["y"]
-                ),
+                (candle["x"], candle["y"]),
                 (
                     candle["x"] + candle["width"],
                     candle["y"] + candle["height"]
