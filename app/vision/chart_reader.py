@@ -121,6 +121,40 @@ class ChartReader:
 
         return candles
 
+    def sort_candles_left_to_right(
+        self,
+        candles
+    ):
+
+        return sorted(
+            candles,
+            key=lambda x: x["x"]
+        )
+
+    def get_candle_statistics(
+        self,
+        bullish_candles,
+        bearish_candles
+    ):
+
+        all_candles = (
+            bullish_candles +
+            bearish_candles
+        )
+
+        all_candles = (
+            self.sort_candles_left_to_right(
+                all_candles
+            )
+        )
+
+        return {
+            "total": len(all_candles),
+            "bullish": len(bullish_candles),
+            "bearish": len(bearish_candles),
+            "candles": all_candles
+        }
+
     def save_debug_images(self, chart):
 
         bullish_mask = self.create_bullish_mask(
@@ -140,6 +174,13 @@ class ChartReader:
         bearish_candles = (
             self.detect_candle_candidates(
                 bearish_mask
+            )
+        )
+
+        candle_stats = (
+            self.get_candle_statistics(
+                bullish_candles,
+                bearish_candles
             )
         )
 
@@ -196,5 +237,6 @@ class ChartReader:
             "bullish_mask": bullish_mask,
             "bearish_mask": bearish_mask,
             "bullish_candles": bullish_candles,
-            "bearish_candles": bearish_candles
+            "bearish_candles": bearish_candles,
+            "stats": candle_stats
         }
