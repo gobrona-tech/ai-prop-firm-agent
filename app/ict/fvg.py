@@ -3,65 +3,122 @@ class FVGDetector:
     def __init__(self):
         pass
 
-    def find_bullish_fvg(self, candles):
+    def build_fvg_series(
+        self,
+        candles
+    ):
+
+        series = []
+
+        for candle in candles:
+
+            top = candle["y"]
+
+            bottom = (
+                candle["y"] +
+                candle["height"]
+            )
+
+            series.append(
+                {
+                    "x": candle["x"],
+                    "top": top,
+                    "bottom": bottom,
+                    "direction": candle.get(
+                        "direction",
+                        "unknown"
+                    )
+                }
+            )
+
+        return series
+
+    def find_bullish_fvg(
+        self,
+        candles
+    ):
 
         fvgs = []
 
-        for i in range(len(candles) - 2):
+        series = self.build_fvg_series(
+            candles
+        )
 
-            candle_1 = candles[i]
-            candle_2 = candles[i + 1]
-            candle_3 = candles[i + 2]
+        for i in range(
+            len(series) - 2
+        ):
 
-            if candle_1["high"] < candle_3["low"]:
+            candle_1 = series[i]
+            candle_3 = series[i + 2]
+
+            if (
+                candle_1["bottom"] <
+                candle_3["top"]
+            ):
 
                 gap_size = (
-                    candle_3["low"] -
-                    candle_1["high"]
+                    candle_3["top"] -
+                    candle_1["bottom"]
                 )
 
                 fvgs.append(
                     {
                         "type": "bullish",
                         "index": i,
-                        "top": candle_3["low"],
-                        "bottom": candle_1["high"],
+                        "x": candle_3["x"],
+                        "top": candle_3["top"],
+                        "bottom": candle_1["bottom"],
                         "size": gap_size
                     }
                 )
 
         return fvgs
 
-    def find_bearish_fvg(self, candles):
+    def find_bearish_fvg(
+        self,
+        candles
+    ):
 
         fvgs = []
 
-        for i in range(len(candles) - 2):
+        series = self.build_fvg_series(
+            candles
+        )
 
-            candle_1 = candles[i]
-            candle_2 = candles[i + 1]
-            candle_3 = candles[i + 2]
+        for i in range(
+            len(series) - 2
+        ):
 
-            if candle_1["low"] > candle_3["high"]:
+            candle_1 = series[i]
+            candle_3 = series[i + 2]
+
+            if (
+                candle_1["top"] >
+                candle_3["bottom"]
+            ):
 
                 gap_size = (
-                    candle_1["low"] -
-                    candle_3["high"]
+                    candle_1["top"] -
+                    candle_3["bottom"]
                 )
 
                 fvgs.append(
                     {
                         "type": "bearish",
                         "index": i,
-                        "top": candle_1["low"],
-                        "bottom": candle_3["high"],
+                        "x": candle_3["x"],
+                        "top": candle_1["top"],
+                        "bottom": candle_3["bottom"],
                         "size": gap_size
                     }
                 )
 
         return fvgs
 
-    def get_largest_fvg(self, fvgs):
+    def get_largest_fvg(
+        self,
+        fvgs
+    ):
 
         if not fvgs:
             return None
@@ -70,3 +127,29 @@ class FVGDetector:
             fvgs,
             key=lambda x: x["size"]
         )
+
+    def analyze_fvg(
+        self,
+        candles
+    ):
+
+        bullish = self.find_bullish_fvg(
+            candles
+        )
+
+        bearish = self.find_bearish_fvg(
+            candles
+        )
+
+        return {
+            "bullish": bullish,
+            "bearish": bearish,
+            "largest_bullish":
+                self.get_largest_fvg(
+                    bullish
+                ),
+            "largest_bearish":
+                self.get_largest_fvg(
+                    bearish
+                )
+        }
