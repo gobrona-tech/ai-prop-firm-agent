@@ -1,6 +1,7 @@
 from app.vision.detector import VisionDetector
 from app.ict.liquidity import LiquidityDetector
 from app.ict.mss import MSSDetector
+from app.ict.fvg import FVGDetector
 
 
 def main():
@@ -8,11 +9,11 @@ def main():
     detector = VisionDetector()
     liquidity = LiquidityDetector()
     mss = MSSDetector()
+    fvg = FVGDetector()
 
     result = detector.scan()
 
     if not result["success"]:
-
         print(result["message"])
         return
 
@@ -48,7 +49,6 @@ def main():
         )
 
         print()
-
         print("================================")
         print("CANDLE DETECTION")
         print("================================")
@@ -103,8 +103,13 @@ def main():
                 )
             )
 
-            print()
+            fvg_data = (
+                fvg.analyze_fvg(
+                    candles
+                )
+            )
 
+            print()
             print("================================")
             print("LIQUIDITY")
             print("================================")
@@ -125,7 +130,6 @@ def main():
             )
 
             print()
-
             print("================================")
             print("MARKET STRUCTURE")
             print("================================")
@@ -135,24 +139,53 @@ def main():
                 f"{structure['bias']}"
             )
 
+            print(
+                f"Bullish MSS: "
+                f"{structure['bullish_mss']}"
+            )
+
+            print(
+                f"Bearish MSS: "
+                f"{structure['bearish_mss']}"
+            )
+
+            print()
+            print("================================")
+            print("FVG")
+            print("================================")
+
+            print(
+                f"Bullish FVGs: "
+                f"{len(fvg_data['bullish'])}"
+            )
+
+            print(
+                f"Bearish FVGs: "
+                f"{len(fvg_data['bearish'])}"
+            )
+
             print()
 
             print(
-                "Bullish MSS:"
+                "Largest Bullish FVG:"
             )
 
             print(
-                structure["bullish_mss"]
+                fvg_data[
+                    "largest_bullish"
+                ]
             )
 
             print()
 
             print(
-                "Bearish MSS:"
+                "Largest Bearish FVG:"
             )
 
             print(
-                structure["bearish_mss"]
+                fvg_data[
+                    "largest_bearish"
+                ]
             )
 
 
