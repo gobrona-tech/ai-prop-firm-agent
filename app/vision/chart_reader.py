@@ -93,12 +93,10 @@ class ChartReader:
 
             current = merged[-1]
 
-            if (
-                abs(
-                    candle["x"] -
-                    current["x"]
-                ) <= distance
-            ):
+            if abs(
+                candle["x"] -
+                current["x"]
+            ) <= distance:
 
                 current["y"] = min(
                     current["y"],
@@ -280,6 +278,17 @@ class ChartReader:
                 3
             )
 
+            cv2.circle(
+                debug_chart,
+                (
+                    candle["x"] + candle["width"] // 2,
+                    candle["y"] + candle["height"] // 2
+                ),
+                4,
+                (255, 255, 0),
+                -1
+            )
+
         for candle in bearish_candles:
 
             cv2.rectangle(
@@ -291,6 +300,17 @@ class ChartReader:
                 ),
                 (0, 0, 255),
                 3
+            )
+
+            cv2.circle(
+                debug_chart,
+                (
+                    candle["x"] + candle["width"] // 2,
+                    candle["y"] + candle["height"] // 2
+                ),
+                4,
+                (255, 255, 0),
+                -1
             )
 
         cv2.imwrite(
