@@ -2,6 +2,7 @@ from app.vision.detector import VisionDetector
 from app.ict.liquidity import LiquidityDetector
 from app.ict.mss import MSSDetector
 from app.ict.fvg import FVGDetector
+from app.ict.orderblock import OrderBlockDetector
 
 
 def main():
@@ -10,6 +11,7 @@ def main():
     liquidity = LiquidityDetector()
     mss = MSSDetector()
     fvg = FVGDetector()
+    orderblock = OrderBlockDetector()
 
     result = detector.scan()
 
@@ -109,6 +111,12 @@ def main():
                 )
             )
 
+            orderblock_data = (
+                orderblock.analyze_orderblocks(
+                    candles
+                )
+            )
+
             print()
             print("================================")
             print("LIQUIDITY")
@@ -185,6 +193,45 @@ def main():
             print(
                 fvg_data[
                     "largest_bearish"
+                ]
+            )
+
+            print()
+            print("================================")
+            print("ORDER BLOCKS")
+            print("================================")
+
+            print(
+                f"Bullish OBs: "
+                f"{len(orderblock_data['bullish'])}"
+            )
+
+            print(
+                f"Bearish OBs: "
+                f"{len(orderblock_data['bearish'])}"
+            )
+
+            print()
+
+            print(
+                "Strongest Bullish OB:"
+            )
+
+            print(
+                orderblock_data[
+                    "strongest_bullish"
+                ]
+            )
+
+            print()
+
+            print(
+                "Strongest Bearish OB:"
+            )
+
+            print(
+                orderblock_data[
+                    "strongest_bearish"
                 ]
             )
 
