@@ -168,6 +168,10 @@ class ChartReader:
             if area < 80:
                 continue
 
+            # ქვედა UI ელემენტების მოცილება
+            if y > 1200:
+                continue
+
             candles.append(
                 {
                     "x": x,
@@ -242,25 +246,19 @@ class ChartReader:
             chart
         )
 
-        bullish_candles = (
-            self.detect_candle_candidates(
-                bullish_mask,
-                "bullish"
-            )
+        bullish_candles = self.detect_candle_candidates(
+            bullish_mask,
+            "bullish"
         )
 
-        bearish_candles = (
-            self.detect_candle_candidates(
-                bearish_mask,
-                "bearish"
-            )
+        bearish_candles = self.detect_candle_candidates(
+            bearish_mask,
+            "bearish"
         )
 
-        candle_stats = (
-            self.get_candle_statistics(
-                bullish_candles,
-                bearish_candles
-            )
+        candle_stats = self.get_candle_statistics(
+            bullish_candles,
+            bearish_candles
         )
 
         debug_chart = chart.copy()
