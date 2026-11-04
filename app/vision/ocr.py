@@ -87,9 +87,12 @@ class OCRReader:
 
     def extract_symbol(self, text_items):
 
-        joined = " ".join(text_items).upper()
+        joined = " ".join(
+            text_items
+        ).upper()
 
         for symbol in self.symbols:
+
             if symbol in joined:
                 return symbol
 
@@ -97,17 +100,45 @@ class OCRReader:
 
     def extract_timeframe(self, text_items):
 
-        for tf in self.timeframes:
-            if tf in text_items:
-                return tf
+        joined = " ".join(text_items)
 
-        return "UNKNOWN"
+        priority = [
+            "1m",
+            "3m",
+            "5m",
+            "15m",
+            "30m",
+            "1h",
+            "4h",
+            "D",
+            "W",
+            "M"
+        ]
+
+        found = []
+
+        for tf in priority:
+
+            if tf in joined:
+                found.append(tf)
+
+        if not found:
+            return "UNKNOWN"
+
+        if "1m" in found:
+            return "1m"
+
+        return found[0]
 
     def save_debug_regions(self, frame):
 
-        header = self.extract_header_region(frame)
+        header = self.extract_header_region(
+            frame
+        )
 
-        price_area = self.extract_price_region(frame)
+        price_area = self.extract_price_region(
+            frame
+        )
 
         header_processed = self.preprocess_image(
             header
@@ -152,11 +183,6 @@ class OCRReader:
         timeframe = self.extract_timeframe(
             header_text
         )
-
-        print()
-        print("===== MARKET INFO =====")
-        print(f"Symbol: {symbol}")
-        print(f"Timeframe: {timeframe}")
 
         return {
             "header": header,
