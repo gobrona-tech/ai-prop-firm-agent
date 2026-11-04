@@ -3,6 +3,7 @@ from app.ict.liquidity import LiquidityDetector
 from app.ict.mss import MSSDetector
 from app.ict.fvg import FVGDetector
 from app.ict.orderblock import OrderBlockDetector
+from app.signal.signal_engine import SignalEngine
 
 
 def main():
@@ -12,6 +13,7 @@ def main():
     mss = MSSDetector()
     fvg = FVGDetector()
     orderblock = OrderBlockDetector()
+    engine = SignalEngine()
 
     result = detector.scan()
 
@@ -98,9 +100,7 @@ def main():
     signal_summary = {
 
         "symbol": symbol,
-
         "timeframe": timeframe,
-
         "bias": structure["bias"],
 
         "candles": stats.get(
@@ -157,6 +157,10 @@ def main():
             ]
     }
 
+    decision = engine.analyze(
+        signal_summary
+    )
+
     print()
     print("================================")
     print("SIGNAL SUMMARY")
@@ -168,6 +172,21 @@ def main():
         print(
             f"{key}: {value}"
         )
+
+    print()
+    print("================================")
+    print("TRADE SIGNAL")
+    print("================================")
+
+    print(
+        f"Score: "
+        f"{decision['score']}"
+    )
+
+    print(
+        f"Signal: "
+        f"{decision['signal']}"
+    )
 
 
 if __name__ == "__main__":
