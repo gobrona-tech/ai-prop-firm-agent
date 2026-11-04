@@ -72,6 +72,21 @@ def main():
 
         if candles:
 
+            print()
+            print("LAST 20 CANDLES")
+            print("--------------------------------")
+
+            for candle in candles[-20:]:
+
+                print(
+                    f"x={candle['x']} "
+                    f"y={candle['y']} "
+                    f"w={candle['width']} "
+                    f"h={candle['height']} "
+                    f"area={candle.get('area', 0)} "
+                    f"dir={candle['direction']}"
+                )
+
             swings = liquidity.build_swing_series(
                 candles
             )
@@ -123,18 +138,15 @@ def main():
             print("================================")
 
             print(
-                f"Swing Highs: "
-                f"{len(swing_highs)}"
+                f"Swing Highs: {len(swing_highs)}"
             )
 
             print(
-                f"Swing Lows: "
-                f"{len(swing_lows)}"
+                f"Swing Lows: {len(swing_lows)}"
             )
 
             print(
-                f"Liquidity Levels: "
-                f"{len(liquidity_map)}"
+                f"Liquidity Levels: {len(liquidity_map)}"
             )
 
             print()
@@ -143,8 +155,7 @@ def main():
             print("================================")
 
             print(
-                f"Bias: "
-                f"{structure['bias']}"
+                f"Bias: {structure['bias']}"
             )
 
             print(
@@ -173,7 +184,6 @@ def main():
             )
 
             print()
-
             print(
                 "Largest Bullish FVG:"
             )
