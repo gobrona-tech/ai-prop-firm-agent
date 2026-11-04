@@ -14,9 +14,7 @@ class ChartReader:
         top = int(height * 0.15)
         bottom = int(height * 0.94)
 
-        chart = frame[top:bottom, left:right]
-
-        return chart
+        return frame[top:bottom, left:right]
 
     def get_chart_info(self, chart):
 
@@ -29,102 +27,88 @@ class ChartReader:
             "center_y": height // 2
         }
 
-    def create_chart_mask(self, chart):
+    def create_bullish_mask(self, chart):
 
-        gray = cv2.cvtColor(
+        hsv = cv2.cvtColor(
             chart,
-            cv2.COLOR_BGR2GRAY
+            cv2.COLOR_BGR2HSV
         )
 
-        blurred = cv2.GaussianBlur(
-            gray,
-            (5, 5),
-            0
+        lower_green = np.array(
+            [35, 40, 40]
         )
 
-        _, mask = cv2.threshold(
-            blurred,
-            120,
-            255,
-            cv2.THRESH_BINARY
+        upper_green = np.array(
+            [90, 255, 255]
         )
 
-        return mask
-
-    def detect_candle_contours(self, mask):
-
-        inverted = cv2.bitwise_not(mask)
-
-        contours, _ = cv2.findContours(
-            inverted,
-            cv2.RETR_EXTERNAL,
-            cv2.CHAIN_APPROX_SIMPLE
+        return cv2.inRange(
+            hsv,
+            lower_green,
+            upper_green
         )
 
-        candles = []
+    def create_bearish_mask(self, chart):
 
-        for contour in contours:
+        hsv = cv2.cvtColor(
+            chart,
+            cv2.COLOR_BGR2HSV
+        )
 
-            x, y, w, h = cv2.boundingRect(
-                contour
-            )
+        lower_red_1 = np.array(
+            [0, 40, 40]
+        )
 
-            if h < 10:
-                continue
+        upper_red_1 = np.array(
+            [15, 255, 255]
+        )
 
-            if w > 50:
-                continue
+        lower_red_2 = np.array(
+            [165, 40, 40]
+        )
 
-            candles.append(
-                {
-                    "x": x,
-                    "y": y,
-                    "width": w,
-                    "height": h
-                }
-            )
+        upper_red_2 = np.array(
+            [180, 255, 255]
+        )
 
-        return candles
+        mask1 = cv2.inRange(
+            hsv,
+            lower_red_1,
+            upper_red_1
+        )
+
+        mask2 = cv2.inRange(
+            hsv,
+            lower_red_2,
+            upper_red_2
+        )
+
+        return cv2.bitwise_or(
+            mask1,
+            mask2
+        )
 
     def save_debug_images(self, chart):
 
-        mask = self.create_chart_mask(
+        bullish_mask = self.create_bullish_mask(
             chart
         )
 
-        candles = self.detect_candle_contours(
-            mask
-        )
-
-        debug_chart = chart.copy()
-
-        for candle in candles:
-
-            cv2.rectangle(
-                debug_chart,
-                (
-                    candle["x"],
-                    candle["y"]
-                ),
-                (
-                    candle["x"] + candle["width"],
-                    candle["y"] + candle["height"]
-                ),
-                (0, 255, 0),
-                1
-            )
-
-        cv2.imwrite(
-            "data/screenshots/chart_mask.png",
-            mask
+        bearish_mask = self.create_bearish_mask(
+            chart
         )
 
         cv2.imwrite(
-            "data/screenshots/candle_contours.png",
-            debug_chart
+            "data/screenshots/bullish_mask.png",
+            bullish_mask
+        )
+
+        cv2.imwrite(
+            "data/screenshots/bearish_mask.png",
+            bearish_mask
         )
 
         return {
-            "mask": mask,
-            "candles": candles
+            "bullish_mask": bullish_mask,
+            "bearish_mask": bearish_mask
         }
