@@ -35,9 +35,15 @@ class VisionDetector:
             }
         )
 
-        chart = self.chart_reader.crop_chart(frame)
+        chart = self.chart_reader.crop_chart(
+            frame
+        )
 
         chart_info = self.chart_reader.get_chart_info(
+            chart
+        )
+
+        chart_debug = self.chart_reader.save_debug_images(
             chart
         )
 
@@ -86,5 +92,6 @@ class VisionDetector:
             "frame": frame,
             "chart": chart,
             "chart_info": chart_info,
+            "chart_debug": chart_debug,
             "regions": regions
         }
