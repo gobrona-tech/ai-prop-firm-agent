@@ -3,69 +3,110 @@ class OrderBlockDetector:
     def __init__(self):
         pass
 
-    def find_bullish_orderblocks(self, candles):
+    def build_orderblock_series(
+        self,
+        candles
+    ):
+
+        series = []
+
+        for candle in candles:
+
+            top = candle["y"]
+
+            bottom = (
+                candle["y"] +
+                candle["height"]
+            )
+
+            series.append(
+                {
+                    "x": candle["x"],
+                    "top": top,
+                    "bottom": bottom,
+                    "height": candle["height"],
+                    "direction": candle.get(
+                        "direction",
+                        "unknown"
+                    )
+                }
+            )
+
+        return series
+
+    def find_bullish_orderblocks(
+        self,
+        candles
+    ):
 
         orderblocks = []
 
-        for i in range(len(candles) - 1):
+        series = self.build_orderblock_series(
+            candles
+        )
 
-            current = candles[i]
-            next_candle = candles[i + 1]
+        for i in range(
+            len(series) - 1
+        ):
 
-            bearish_candle = (
-                current["close"] < current["open"]
-            )
+            current = series[i]
+            next_candle = series[i + 1]
 
-            displacement_up = (
-                next_candle["close"] > current["high"]
-            )
-
-            if bearish_candle and displacement_up:
+            if (
+                current["direction"] ==
+                "bearish"
+                and
+                next_candle["direction"] ==
+                "bullish"
+            ):
 
                 orderblocks.append(
                     {
                         "type": "bullish",
                         "index": i,
-                        "high": current["high"],
-                        "low": current["low"],
-                        "range": (
-                            current["high"] -
-                            current["low"]
-                        )
+                        "x": current["x"],
+                        "top": current["top"],
+                        "bottom": current["bottom"],
+                        "strength": current["height"]
                     }
                 )
 
         return orderblocks
 
-    def find_bearish_orderblocks(self, candles):
+    def find_bearish_orderblocks(
+        self,
+        candles
+    ):
 
         orderblocks = []
 
-        for i in range(len(candles) - 1):
+        series = self.build_orderblock_series(
+            candles
+        )
 
-            current = candles[i]
-            next_candle = candles[i + 1]
+        for i in range(
+            len(series) - 1
+        ):
 
-            bullish_candle = (
-                current["close"] > current["open"]
-            )
+            current = series[i]
+            next_candle = series[i + 1]
 
-            displacement_down = (
-                next_candle["close"] < current["low"]
-            )
-
-            if bullish_candle and displacement_down:
+            if (
+                current["direction"] ==
+                "bullish"
+                and
+                next_candle["direction"] ==
+                "bearish"
+            ):
 
                 orderblocks.append(
                     {
                         "type": "bearish",
                         "index": i,
-                        "high": current["high"],
-                        "low": current["low"],
-                        "range": (
-                            current["high"] -
-                            current["low"]
-                        )
+                        "x": current["x"],
+                        "top": current["top"],
+                        "bottom": current["bottom"],
+                        "strength": current["height"]
                     }
                 )
 
@@ -81,5 +122,35 @@ class OrderBlockDetector:
 
         return max(
             orderblocks,
-            key=lambda x: x["range"]
+            key=lambda x: x["strength"]
         )
+
+    def analyze_orderblocks(
+        self,
+        candles
+    ):
+
+        bullish = (
+            self.find_bullish_orderblocks(
+                candles
+            )
+        )
+
+        bearish = (
+            self.find_bearish_orderblocks(
+                candles
+            )
+        )
+
+        return {
+            "bullish": bullish,
+            "bearish": bearish,
+            "strongest_bullish":
+                self.get_strongest_orderblock(
+                    bullish
+                ),
+            "strongest_bearish":
+                self.get_strongest_orderblock(
+                    bearish
+                )
+        }
