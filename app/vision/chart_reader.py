@@ -88,7 +88,11 @@ class ChartReader:
             mask2
         )
 
-    def detect_candle_candidates(self, mask):
+    def detect_candle_candidates(
+        self,
+        mask,
+        direction
+    ):
 
         contours, _ = cv2.findContours(
             mask,
@@ -104,10 +108,18 @@ class ChartReader:
                 contour
             )
 
+            area = w * h
+
             if h < 8:
                 continue
 
+            if w < 2:
+                continue
+
             if w > 25:
+                continue
+
+            if area < 30:
                 continue
 
             candles.append(
@@ -115,7 +127,8 @@ class ChartReader:
                     "x": x,
                     "y": y,
                     "width": w,
-                    "height": h
+                    "height": h,
+                    "direction": direction
                 }
             )
 
@@ -130,6 +143,18 @@ class ChartReader:
             candles,
             key=lambda x: x["x"]
         )
+
+    def get_recent_candles(
+        self,
+        candles,
+        count=10
+    ):
+
+        candles = self.sort_candles_left_to_right(
+            candles
+        )
+
+        return candles[-count:]
 
     def get_candle_statistics(
         self,
@@ -152,7 +177,10 @@ class ChartReader:
             "total": len(all_candles),
             "bullish": len(bullish_candles),
             "bearish": len(bearish_candles),
-            "candles": all_candles
+            "candles": all_candles,
+            "recent": self.get_recent_candles(
+                all_candles
+            )
         }
 
     def save_debug_images(self, chart):
@@ -167,13 +195,15 @@ class ChartReader:
 
         bullish_candles = (
             self.detect_candle_candidates(
-                bullish_mask
+                bullish_mask,
+                "bullish"
             )
         )
 
         bearish_candles = (
             self.detect_candle_candidates(
-                bearish_mask
+                bearish_mask,
+                "bearish"
             )
         )
 
