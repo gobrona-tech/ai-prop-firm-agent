@@ -176,6 +176,12 @@ class OCRReader:
             price_processed
         )
 
+        print()
+        print("===== OCR RAW HEADER =====")
+
+        for item in header_text:
+            print(item)
+
         symbol = self.extract_symbol(
             header_text
         )
