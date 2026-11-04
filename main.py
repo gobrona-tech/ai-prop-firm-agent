@@ -1,11 +1,13 @@
 from app.vision.detector import VisionDetector
 from app.ict.liquidity import LiquidityDetector
+from app.ict.mss import MSSDetector
 
 
 def main():
 
     detector = VisionDetector()
     liquidity = LiquidityDetector()
+    mss = MSSDetector()
 
     result = detector.scan()
 
@@ -32,58 +34,6 @@ def main():
 
         print(f"Symbol: {symbol}")
         print(f"Timeframe: {timeframe}")
-
-    print()
-
-    print("================================")
-    print("TRADINGVIEW DETECTED")
-    print("================================")
-
-    print(result["window"]["title"])
-
-    print()
-
-    print(
-        f"WIDTH: {result['window']['width']}"
-    )
-
-    print(
-        f"HEIGHT: {result['window']['height']}"
-    )
-
-    print()
-
-    print(
-        f"FRAME SHAPE: {result['frame'].shape}"
-    )
-
-    if "chart_info" in result:
-
-        print()
-
-        print("================================")
-        print("CHART INFO")
-        print("================================")
-
-        print(
-            f"Chart Width: "
-            f"{result['chart_info']['width']}"
-        )
-
-        print(
-            f"Chart Height: "
-            f"{result['chart_info']['height']}"
-        )
-
-        print(
-            f"Center X: "
-            f"{result['chart_info']['center_x']}"
-        )
-
-        print(
-            f"Center Y: "
-            f"{result['chart_info']['center_y']}"
-        )
 
     if "chart_debug" in result:
 
@@ -143,6 +93,16 @@ def main():
                 )
             )
 
+            current_value = swings[-1]["value"]
+
+            structure = (
+                mss.analyze_structure(
+                    swing_highs,
+                    swing_lows,
+                    current_value
+                )
+            )
+
             print()
 
             print("================================")
@@ -164,29 +124,36 @@ def main():
                 f"{len(liquidity_map)}"
             )
 
-            if swing_highs:
+            print()
 
-                print()
+            print("================================")
+            print("MARKET STRUCTURE")
+            print("================================")
 
-                print(
-                    "Latest Swing High:"
-                )
+            print(
+                f"Bias: "
+                f"{structure['bias']}"
+            )
 
-                print(
-                    swing_highs[-1]
-                )
+            print()
 
-            if swing_lows:
+            print(
+                "Bullish MSS:"
+            )
 
-                print()
+            print(
+                structure["bullish_mss"]
+            )
 
-                print(
-                    "Latest Swing Low:"
-                )
+            print()
 
-                print(
-                    swing_lows[-1]
-                )
+            print(
+                "Bearish MSS:"
+            )
+
+            print(
+                structure["bearish_mss"]
+            )
 
 
 if __name__ == "__main__":
