@@ -3,6 +3,17 @@ class OrderBlockDetector:
     def __init__(self):
         pass
 
+    def get_recent_window(
+        self,
+        candles,
+        size=50
+    ):
+
+        if len(candles) <= size:
+            return candles
+
+        return candles[-size:]
+
     def build_orderblock_series(
         self,
         candles
@@ -41,6 +52,11 @@ class OrderBlockDetector:
 
         orderblocks = []
 
+        candles = self.get_recent_window(
+            candles,
+            50
+        )
+
         series = self.build_orderblock_series(
             candles
         )
@@ -52,12 +68,13 @@ class OrderBlockDetector:
             current = series[i]
             next_candle = series[i + 1]
 
+            if current["height"] < 30:
+                continue
+
             if (
-                current["direction"] ==
-                "bearish"
+                current["direction"] == "bearish"
                 and
-                next_candle["direction"] ==
-                "bullish"
+                next_candle["direction"] == "bullish"
             ):
 
                 orderblocks.append(
@@ -80,6 +97,11 @@ class OrderBlockDetector:
 
         orderblocks = []
 
+        candles = self.get_recent_window(
+            candles,
+            50
+        )
+
         series = self.build_orderblock_series(
             candles
         )
@@ -91,12 +113,13 @@ class OrderBlockDetector:
             current = series[i]
             next_candle = series[i + 1]
 
+            if current["height"] < 30:
+                continue
+
             if (
-                current["direction"] ==
-                "bullish"
+                current["direction"] == "bullish"
                 and
-                next_candle["direction"] ==
-                "bearish"
+                next_candle["direction"] == "bearish"
             ):
 
                 orderblocks.append(
