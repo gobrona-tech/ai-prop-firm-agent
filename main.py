@@ -1,9 +1,11 @@
 from app.vision.detector import VisionDetector
+from app.ict.liquidity import LiquidityDetector
 
 
 def main():
 
     detector = VisionDetector()
+    liquidity = LiquidityDetector()
 
     result = detector.scan()
 
@@ -118,29 +120,72 @@ def main():
 
         if candles:
 
+            swings = liquidity.build_swing_series(
+                candles
+            )
+
+            swing_highs = (
+                liquidity.find_swing_highs(
+                    swings
+                )
+            )
+
+            swing_lows = (
+                liquidity.find_swing_lows(
+                    swings
+                )
+            )
+
+            liquidity_map = (
+                liquidity.build_liquidity_map(
+                    swing_highs,
+                    swing_lows
+                )
+            )
+
             print()
 
+            print("================================")
+            print("LIQUIDITY")
+            print("================================")
+
             print(
-                f"First Candle X: "
-                f"{candles[0]['x']}"
+                f"Swing Highs: "
+                f"{len(swing_highs)}"
             )
 
             print(
-                f"Last Candle X: "
-                f"{candles[-1]['x']}"
+                f"Swing Lows: "
+                f"{len(swing_lows)}"
             )
 
-            print()
+            print(
+                f"Liquidity Levels: "
+                f"{len(liquidity_map)}"
+            )
 
-            print("Recent Candles:")
+            if swing_highs:
 
-            for candle in candles[-5:]:
+                print()
 
                 print(
-                    f"x={candle['x']} "
-                    f"y={candle['y']} "
-                    f"w={candle['width']} "
-                    f"h={candle['height']}"
+                    "Latest Swing High:"
+                )
+
+                print(
+                    swing_highs[-1]
+                )
+
+            if swing_lows:
+
+                print()
+
+                print(
+                    "Latest Swing Low:"
+                )
+
+                print(
+                    swing_lows[-1]
                 )
 
 
