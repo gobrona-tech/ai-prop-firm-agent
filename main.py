@@ -139,14 +139,10 @@ def main():
         ),
 
         "largest_bullish_fvg":
-            fvg_data[
-                "largest_bullish"
-            ],
+            fvg_data["largest_bullish"],
 
         "largest_bearish_fvg":
-            fvg_data[
-                "largest_bearish"
-            ],
+            fvg_data["largest_bearish"],
 
         "strongest_bullish_ob":
             orderblock_data[
@@ -161,6 +157,18 @@ def main():
 
     decision = engine.analyze(
         signal_summary
+    )
+
+    print()
+    print("================================")
+    print("TIMEFRAME DEBUG")
+    print("================================")
+
+    print(
+        result.get(
+            "timeframe_debug",
+            {}
+        )
     )
 
     signal_summary["signal"] = (
