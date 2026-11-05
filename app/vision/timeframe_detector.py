@@ -6,16 +6,16 @@ class TimeframeDetector:
 
     def __init__(self):
 
-        self.timeframes = [
-            "15s",
-            "1m",
-            "3m",
-            "5m",
-            "15m",
-            "30m",
-            "1h",
-            "4h"
-        ]
+        self.timeframes = {
+            "15s": (0, 80),
+            "1m": (80, 150),
+            "3m": (150, 230),
+            "5m": (230, 320),
+            "15m": (320, 440),
+            "30m": (440, 570),
+            "1h": (570, 680),
+            "4h": (680, 780)
+        }
 
     def extract_timeframe_bar(
         self,
@@ -56,30 +56,26 @@ class TimeframeDetector:
 
         h, w = gray.shape
 
-        slots = [
-            "15s",
-            "1m",
-            "3m",
-            "5m",
-            "15m",
-            "30m",
-            "1h",
-            "4h"
-        ]
-
-        segment_width = w // len(slots)
+        debug = region.copy()
 
         scores = {}
 
-        debug = cv2.cvtColor(
-            gray,
-            cv2.COLOR_GRAY2BGR
-        )
+        for tf, (start_x, end_x) in (
+            self.timeframes.items()
+        ):
 
-        for i, tf in enumerate(slots):
+            end_x = min(
+                end_x,
+                w
+            )
 
-            start_x = i * segment_width
-            end_x = start_x + segment_width
+            start_x = min(
+                start_x,
+                w - 1
+            )
+
+            if end_x <= start_x:
+                continue
 
             segment = gray[
                 :,
@@ -88,7 +84,7 @@ class TimeframeDetector:
 
             dark_mask = cv2.inRange(
                 segment,
-                40,
+                50,
                 120
             )
 
@@ -125,6 +121,13 @@ class TimeframeDetector:
             "data/screenshots/timeframe_segments.png",
             debug
         )
+
+        if not scores:
+
+            return {
+                "active": "UNKNOWN",
+                "scores": {}
+            }
 
         active = max(
             scores,
