@@ -38,6 +38,24 @@ def main():
             "UNKNOWN"
         )
 
+    # Vision timeframe overrides OCR timeframe
+    if "timeframe_debug" in result:
+
+        detected_timeframe = (
+            result["timeframe_debug"].get(
+                "active"
+            )
+        )
+
+        if (
+            detected_timeframe and
+            detected_timeframe != "UNKNOWN"
+        ):
+
+            timeframe = (
+                detected_timeframe
+            )
+
     if "chart_debug" not in result:
         return
 
