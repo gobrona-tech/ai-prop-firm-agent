@@ -7,14 +7,14 @@ class TimeframeDetector:
     def __init__(self):
 
         self.timeframes = {
-            "15s": (0, 80),
-            "1m": (80, 150),
-            "3m": (150, 230),
-            "5m": (230, 320),
-            "15m": (320, 440),
-            "30m": (440, 570),
-            "1h": (570, 680),
-            "4h": (680, 780)
+            "15s": (40, 90),
+            "1m": (90, 160),
+            "3m": (160, 240),
+            "5m": (240, 330),
+            "15m": (330, 450),
+            "30m": (450, 580),
+            "1h": (580, 690),
+            "4h": (690, 800)
         }
 
     def extract_timeframe_bar(
@@ -35,6 +35,35 @@ class TimeframeDetector:
             left:right
         ]
 
+    def get_nearest_timeframe(
+        self,
+        center_x
+    ):
+
+        nearest = None
+        min_distance = 999999
+
+        for tf, (start_x, end_x) in (
+            self.timeframes.items()
+        ):
+
+            middle = (
+                start_x +
+                end_x
+            ) // 2
+
+            distance = abs(
+                center_x -
+                middle
+            )
+
+            if distance < min_distance:
+
+                min_distance = distance
+                nearest = tf
+
+        return nearest
+
     def detect_active_timeframe(
         self,
         frame
@@ -49,92 +78,117 @@ class TimeframeDetector:
             region
         )
 
-        gray = cv2.cvtColor(
+        hsv = cv2.cvtColor(
             region,
-            cv2.COLOR_BGR2GRAY
+            cv2.COLOR_BGR2HSV
         )
 
-        h, w = gray.shape
+        # selected timeframe capsule
+        mask = cv2.inRange(
+            hsv,
+            np.array([0, 0, 40]),
+            np.array([180, 80, 140])
+        )
+
+        cv2.imwrite(
+            "data/screenshots/timeframe_capsule_mask.png",
+            mask
+        )
+
+        contours, _ = cv2.findContours(
+            mask,
+            cv2.RETR_EXTERNAL,
+            cv2.CHAIN_APPROX_SIMPLE
+        )
 
         debug = region.copy()
 
-        scores = {}
+        best_contour = None
+        best_area = 0
 
-        for tf, (start_x, end_x) in (
-            self.timeframes.items()
-        ):
+        for contour in contours:
 
-            end_x = min(
-                end_x,
-                w
+            x, y, w, h = cv2.boundingRect(
+                contour
             )
 
-            start_x = min(
-                start_x,
-                w - 1
-            )
+            area = w * h
 
-            if end_x <= start_x:
+            if area < 1500:
                 continue
 
-            segment = gray[
-                :,
-                start_x:end_x
-            ]
+            if area > best_area:
 
-            dark_mask = cv2.inRange(
-                segment,
-                50,
-                120
+                best_area = area
+                best_contour = (
+                    x,
+                    y,
+                    w,
+                    h
+                )
+
+        if not best_contour:
+
+            cv2.imwrite(
+                "data/screenshots/timeframe_detected.png",
+                debug
             )
-
-            dark_pixels = cv2.countNonZero(
-                dark_mask
-            )
-
-            scores[tf] = int(
-                dark_pixels
-            )
-
-            cv2.rectangle(
-                debug,
-                (start_x, 0),
-                (end_x, h),
-                (0, 255, 0),
-                2
-            )
-
-            cv2.putText(
-                debug,
-                tf,
-                (
-                    start_x + 5,
-                    20
-                ),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.5,
-                (0, 255, 255),
-                1
-            )
-
-        cv2.imwrite(
-            "data/screenshots/timeframe_segments.png",
-            debug
-        )
-
-        if not scores:
 
             return {
-                "active": "UNKNOWN",
-                "scores": {}
+                "active": "UNKNOWN"
             }
 
-        active = max(
-            scores,
-            key=scores.get
+        x, y, w, h = best_contour
+
+        center_x = x + (
+            w // 2
+        )
+
+        active = (
+            self.get_nearest_timeframe(
+                center_x
+            )
+        )
+
+        cv2.rectangle(
+            debug,
+            (x, y),
+            (x + w, y + h),
+            (0, 255, 0),
+            3
+        )
+
+        cv2.circle(
+            debug,
+            (
+                center_x,
+                y + h // 2
+            ),
+            6,
+            (0, 0, 255),
+            -1
+        )
+
+        cv2.putText(
+            debug,
+            active,
+            (
+                x,
+                max(20, y - 5)
+            ),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.7,
+            (0, 255, 0),
+            2
+        )
+
+        cv2.imwrite(
+            "data/screenshots/timeframe_detected.png",
+            debug
         )
 
         return {
             "active": active,
-            "scores": scores
+            "center_x": center_x,
+            "contour_area": best_area
         }
