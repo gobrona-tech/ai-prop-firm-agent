@@ -54,11 +54,44 @@ class TimeframeDetector:
             np.array([140, 255, 255])
         )
 
-        blue_pixels = cv2.countNonZero(
-            blue_mask
+        h, w = blue_mask.shape
+
+        slots = [
+            "1m",
+            "3m",
+            "5m",
+            "15m",
+            "30m",
+            "1h",
+            "4h"
+        ]
+
+        segment_width = w // len(slots)
+
+        scores = {}
+
+        for i, tf in enumerate(slots):
+
+            start_x = i * segment_width
+            end_x = start_x + segment_width
+
+            segment = blue_mask[
+                :,
+                start_x:end_x
+            ]
+
+            scores[tf] = int(
+                cv2.countNonZero(
+                    segment
+                )
+            )
+
+        active = max(
+            scores,
+            key=scores.get
         )
 
         return {
-            "blue_pixels":
-                blue_pixels
+            "active": active,
+            "scores": scores
         }
