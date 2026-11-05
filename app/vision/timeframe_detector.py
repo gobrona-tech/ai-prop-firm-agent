@@ -24,11 +24,11 @@ class TimeframeDetector:
 
         height, width = frame.shape[:2]
 
-        top = 0
-        bottom = int(height * 0.12)
+        top = int(height * 0.05)
+        bottom = int(height * 0.16)
 
-        left = int(width * 0.10)
-        right = int(width * 0.45)
+        left = int(width * 0.15)
+        right = int(width * 0.38)
 
         return frame[
             top:bottom,
@@ -86,13 +86,14 @@ class TimeframeDetector:
                 start_x:end_x
             ]
 
-            # უფრო მუქი ფონების შეფასება
+            dark_mask = cv2.inRange(
+                segment,
+                40,
+                120
+            )
+
             dark_pixels = cv2.countNonZero(
-                cv2.inRange(
-                    segment,
-                    40,
-                    120
-                )
+                dark_mask
             )
 
             scores[tf] = int(
@@ -105,6 +106,19 @@ class TimeframeDetector:
                 (end_x, h),
                 (0, 255, 0),
                 2
+            )
+
+            cv2.putText(
+                debug,
+                tf,
+                (
+                    start_x + 5,
+                    20
+                ),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (0, 255, 255),
+                1
             )
 
         cv2.imwrite(
