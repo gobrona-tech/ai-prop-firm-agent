@@ -7,6 +7,7 @@ class TimeframeDetector:
     def __init__(self):
 
         self.timeframes = [
+            "15s",
             "1m",
             "3m",
             "5m",
@@ -48,25 +49,15 @@ class TimeframeDetector:
             region
         )
 
-        hsv = cv2.cvtColor(
+        gray = cv2.cvtColor(
             region,
-            cv2.COLOR_BGR2HSV
+            cv2.COLOR_BGR2GRAY
         )
 
-        blue_mask = cv2.inRange(
-            hsv,
-            np.array([90, 40, 40]),
-            np.array([140, 255, 255])
-        )
-
-        cv2.imwrite(
-            "data/screenshots/timeframe_blue_mask.png",
-            blue_mask
-        )
-
-        h, w = blue_mask.shape
+        h, w = gray.shape
 
         slots = [
+            "15s",
             "1m",
             "3m",
             "5m",
@@ -80,21 +71,46 @@ class TimeframeDetector:
 
         scores = {}
 
+        debug = cv2.cvtColor(
+            gray,
+            cv2.COLOR_GRAY2BGR
+        )
+
         for i, tf in enumerate(slots):
 
             start_x = i * segment_width
             end_x = start_x + segment_width
 
-            segment = blue_mask[
+            segment = gray[
                 :,
                 start_x:end_x
             ]
 
-            scores[tf] = int(
-                cv2.countNonZero(
-                    segment
+            # უფრო მუქი ფონების შეფასება
+            dark_pixels = cv2.countNonZero(
+                cv2.inRange(
+                    segment,
+                    40,
+                    120
                 )
             )
+
+            scores[tf] = int(
+                dark_pixels
+            )
+
+            cv2.rectangle(
+                debug,
+                (start_x, 0),
+                (end_x, h),
+                (0, 255, 0),
+                2
+            )
+
+        cv2.imwrite(
+            "data/screenshots/timeframe_segments.png",
+            debug
+        )
 
         active = max(
             scores,
